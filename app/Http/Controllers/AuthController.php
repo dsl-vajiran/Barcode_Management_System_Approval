@@ -1,0 +1,67 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
+
+class AuthController extends Controller
+{
+    /**
+     * Show login form
+     */
+    public function showLogin()
+    {
+        if (Auth::check()) {
+            return redirect()->route('dashboard');
+        }
+        return view('auth.login');
+    }
+
+    /**
+     * Handle login authentication
+     */
+    public function authenticate(Request $request)
+    {
+        $credentials = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ], [
+            'email.required' => 'Email is required',
+            'email.email' => 'Please enter a valid email',
+            'password.required' => 'Password is required',
+        ]);
+
+        // Attempt authentication (HANA columns are typically uppercase when created unquoted)
+        if (Auth::attempt(['EMAIL' => $credentials['email'], 'password' => $credentials['password']])) {
+            $user = Auth::user();
+
+            // Check if user is active
+            if (!$user->is_active) {
+                Auth::logout();
+                return back()->withErrors(['email' => 'Your account has been deactivated.'])->withInput();
+            }
+
+            $request->session()->regenerate();
+            return redirect()->route('dashboard')->with('success', 'Welcome back, ' . $user->name . '!');
+        }
+
+        return back()->withErrors([
+            'email' => 'The provided credentials do not match our records.',
+        ])->withInput($request->except('password'));
+    }
+
+    /**
+     * Handle logout
+     */
+    public function logout(Request $request)
+    {
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+        return redirect()->route('login')->with('success', 'You have been logged out successfully.');
+    }
+}
+

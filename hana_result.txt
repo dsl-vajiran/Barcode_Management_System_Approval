@@ -1,0 +1,13 @@
+﻿=== HANA Connection Test (with timeout) ===
+Host: 192.168.4.80
+Port: 30015
+User: PABANIH
+Schema: TEST_DSL
+
+DSN: odbc:Driver={HDBODBC};ServerNode=192.168.4.80:30015;
+
+Attempting connection...
+SUCCESS: Connected to SAP HANA! (took 0.06s)
+Schema set to: TEST_DSL
+FAILED after 0.06s: SQLSTATE[SL009]: <<Unknown error>>: [Microsoft][ODBC Cursor Library] No columns were bound prior to calling SQLFetchScroll/SQLExtendedFetch (SQLFetchScroll[0] at ext\pdo_odbc\odbc_stmt.c:556)
+Error Code: SL009
